@@ -117,10 +117,10 @@ class Dispatcher(object):
                                  to=[recipient])
         self.logger.info("Sending email to %s" % recipient)
 
-        if self.mail_connection:
-            self.mail_connection.send_messages([email])
-        else:
-            email.send()
+#        if self.mail_connection:
+#            self.mail_connection.send_messages([email])
+#        else:
+#            email.send()
 
         return email
 
