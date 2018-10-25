@@ -8,9 +8,12 @@ env = environ.Env()
 location = lambda x: os.path.join(
     os.path.dirname(os.path.realpath(__file__)), x)
 
+EASYREC_ENDPOINT = 'DUMMY'
+
 DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = [
+    '*',
     'latest.oscarcommerce.com',
     'master.oscarcommerce.com',
     'localhost',
@@ -23,7 +26,8 @@ ADMINS = (
     ('Michael van Tellingen', 'michaelvantellingen@gmail.com'),
 )
 EMAIL_SUBJECT_PREFIX = '[Oscar sandbox] '
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = None
 
 MANAGERS = ADMINS
 
@@ -119,7 +123,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '$)a7n&o80u!6y5t-+jrd3)3!%vh&shg$wqpjpxc!ar&p#!)n1a'
+SECRET_KEY = '$)a7n&o80u!6y5t-+jrd3)3!%vh&shg$wqpjpxc!ar&p#!)n1b'
 
 TEMPLATES = [
     {
@@ -276,6 +280,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'apps.gateway',     # For allowing dashboard access
     'widget_tweaks',
+    'easyrec'
 ] + oscar.get_core_apps()
 
 # Add Oscar's custom auth backend so users can sign in using their email
