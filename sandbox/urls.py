@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.contrib.sitemaps import views
 from oscar.app import application
 from oscar.views import handler403, handler404, handler500
-
+from oscarapi.app import application as api
 from apps.gateway import urls as gateway_urls
 from apps.sitemaps import base_sitemaps
 
@@ -26,7 +26,8 @@ urlpatterns = [
         {'sitemaps': base_sitemaps}),
     url(r'^sitemap-(?P<section>.+)\.xml$', views.sitemap,
         {'sitemaps': base_sitemaps},
-        name='django.contrib.sitemaps.views.sitemap')
+        name='django.contrib.sitemaps.views.sitemap'),
+    url(r'^api/', api.urls)
 ]
 
 # Prefix Oscar URLs with language codes

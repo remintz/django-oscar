@@ -8,7 +8,9 @@ env = environ.Env()
 location = lambda x: os.path.join(
     os.path.dirname(os.path.realpath(__file__)), x)
 
-EASYREC_ENDPOINT = 'DUMMY'
+EASYREC_ENDPOINT = 'http://127.0.0.1:8000'
+EASYREC_TENANT_ID = 'TENANT_ID'
+EASYREC_API_KEY = 'API_KEY'
 
 DEBUG = env.bool('DEBUG', default=True)
 
@@ -27,7 +29,7 @@ ADMINS = (
 )
 EMAIL_SUBJECT_PREFIX = '[Oscar sandbox] '
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_BACKEND = None
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MANAGERS = ADMINS
 
@@ -280,7 +282,9 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'apps.gateway',     # For allowing dashboard access
     'widget_tweaks',
-    'easyrec'
+    'easyrec',
+    'rest_framework',
+    'oscarapi'
 ] + oscar.get_core_apps()
 
 # Add Oscar's custom auth backend so users can sign in using their email
