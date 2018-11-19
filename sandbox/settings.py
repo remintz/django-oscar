@@ -8,7 +8,7 @@ env = environ.Env()
 location = lambda x: os.path.join(
     os.path.dirname(os.path.realpath(__file__)), x)
 
-EASYREC_ENDPOINT = 'http://127.0.0.1:8000'
+EASYREC_ENDPOINT = 'http://127.0.0.1:8088'
 EASYREC_TENANT_ID = 'TENANT_ID'
 EASYREC_API_KEY = 'API_KEY'
 
@@ -261,6 +261,11 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': True,
             'level': 'INFO',
+        },
+        'easyrec': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
     }
 }
