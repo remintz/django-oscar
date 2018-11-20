@@ -34,6 +34,8 @@ sandbox_load_data:
 	sandbox/manage.py update_index catalogue
 	sandbox/manage.py thumbnail cleanup
 	sandbox/manage.py collectstatic --noinput
+	sandbox/manage.py oscar_populate_product_records
+	sandbox/manage.py loaddata sandbox/fixtures/product-records.json
 
 sandbox: install build_sandbox
 
