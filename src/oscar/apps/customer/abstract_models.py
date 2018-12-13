@@ -434,3 +434,52 @@ class AbstractProductAlert(models.Model):
 
     def get_cancel_url(self):
         return reverse('customer:alerts-cancel-by-key', kwargs={'key': self.key})
+
+class AbstractDemographics(models.Model):
+    GENDER_MALE = 'M'
+    GENDER_FEMALE = 'F'
+    GENDER_OTHER = 'O'
+    GENDER_CHOICES = (
+        (GENDER_MALE, 'Male'),
+        (GENDER_FEMALE, 'Female'),
+        (GENDER_OTHER, 'Other')
+    )
+
+    SCHOOL_LEVEL_PRIMARY = 'P'
+    SCHOOL_LEVEL_SECONDARY = 'S'
+    SCHOOL_LEVEL_UNIVERSITY = 'U'
+    SCHOOL_LEVEL_POSTGRAD = 'G'
+
+    SCHOOL_LEVEL_CHOICES = (
+        (SCHOOL_LEVEL_PRIMARY, 'Primary'),
+        (SCHOOL_LEVEL_SECONDARY, 'Secondary'),
+        (SCHOOL_LEVEL_UNIVERSITY, 'B.Sc.'),
+        (SCHOOL_LEVEL_POSTGRAD, 'M.Sc.')
+    )
+
+    user = models.OneToOneField(
+        AUTH_USER_MODEL,
+        db_index=True,
+        on_delete=models.CASCADE,
+        related_name='user')
+
+    birthDate = models.DateField(blank=True)
+    gender = models.CharField(
+        max_length = 1,
+        choices = GENDER_CHOICES
+    )
+    school_level = models.CharField(
+        max_length = 1,
+        choices = SCHOOL_LEVEL_CHOICES
+    )
+
+    class Meta:
+        abstract = True
+        app_label = 'customer'
+        verbose_name = _('Demographics')
+        verbose_name_plural = _('Demographics')
+
+    def __str__(self):
+        value = ( 'age: %s, gender: %s, school_level: %s' % (self.age, self.gender, self.school_level))
+        return value
+
