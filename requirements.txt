@@ -4,7 +4,7 @@
 Werkzeug==0.14.1
 django-debug-toolbar==1.10.1
 django-extensions==2.1.3
-psycopg2>=2.7,<2.8 --no-binary psycopg2
+psycopg2>=2.7,<2.8
 
 # Sandbox
 Pillow==5.3.0
@@ -30,3 +30,7 @@ ipython==7.0.1
 
 # Country data
 pycountry==18.5.26
+
+# Oscar extensions - require these packages previously installed
+-e ../django-oscar-easyrec
+-e ../django-oscar-api

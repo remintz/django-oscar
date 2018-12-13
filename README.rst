@@ -1,3 +1,9 @@
+This Oscar version is a fork of django-oscar.
+
+It has dependencies on forks of django-oscar-api and django-oscar-easyrec that need to be cloned from https://innersource.accenture.com and placed on sibling folders
+
+
+
 .. image:: https://github.com/django-oscar/django-oscar/raw/master/docs/images/logos/oscar.png
     :target: http://oscarcommerce.com
 
