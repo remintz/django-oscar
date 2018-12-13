@@ -51,4 +51,5 @@ settings_local.py
 /sandbox/logs/
 
 oscar/*
-sandbox/fixtures/product-records.json
+/sandbox/fixtures/product-records.json
+dbdump*
