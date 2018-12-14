@@ -480,6 +480,6 @@ class AbstractDemographics(models.Model):
         verbose_name_plural = _('Demographics')
 
     def __str__(self):
-        value = ( 'age: %s, gender: %s, school_level: %s' % (self.age, self.gender, self.school_level))
+        value = ( 'birth_date: %s, gender: %s, school_level: %s' % (self.birth_date, self.gender, self.school_level))
         return value
 
