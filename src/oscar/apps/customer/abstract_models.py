@@ -461,9 +461,9 @@ class AbstractDemographics(models.Model):
         AUTH_USER_MODEL,
         db_index=True,
         on_delete=models.CASCADE,
-        related_name='user')
+        related_name='demographics')
 
-    birthDate = models.DateField(blank=True)
+    birth_date = models.DateField(blank=True)
     gender = models.CharField(
         max_length = 1,
         choices = GENDER_CHOICES

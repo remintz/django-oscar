@@ -198,22 +198,22 @@
                         <div id="user_demographics" class="tab-pane">
                             <table class="table table-striped table-bordered table-hover">
                                 <caption>{% trans "Demographics" %}</caption>
-                                {% if not customer.demographics %}
+                                {% if customer.demographics %}
                                 <div class="row">
                                     <div class="col-md-12">
                                         <table class="table table-bordered">
                                             <tr>
-                                                <th>{% trans "Age" %}</th>
-                                                <td>{{ customer.get_full_name|default:"-" }}</td>
+                                                <th>{% trans "Birth Date" %}</th>
+                                                <td>{{ customer.demographics.birth_date }}</td>
                                             </tr>
                                             <tr>
                                                 <th>{% trans "Gender" %}</th>
-                                                <td>{{ customer.email }}</td>
+                                                <td>{{ customer.demographics.gender }}</td>
                                             </tr>
                                             <tr>
                                                 <th>{% trans "School Level" %}</th>
                                                 <td>
-                                                    {{ customer.is_active|yesno:_("Yes,No") }}
+                                                    {{ customer.demographics.school_level }}
                                                 </td>
                                             </tr>
                                         </table>

@@ -21,6 +21,7 @@ UserSearchForm, ProductAlertSearchForm, ProductAlertUpdateForm = get_classes(
 PasswordResetForm = get_class('customer.forms', 'PasswordResetForm')
 UserTable = get_class('dashboard.users.tables', 'UserTable')
 ProductAlert = get_model('customer', 'ProductAlert')
+Demographics = get_model('customer', 'Demographics')
 User = get_user_model()
 
 
