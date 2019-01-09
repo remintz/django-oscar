@@ -1,13 +1,17 @@
 from django.contrib import messages
 from django.core.paginator import InvalidPage
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponsePermanentRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, TemplateView
+from django.views import View
 
 from oscar.apps.catalogue.signals import product_viewed
 from oscar.core.loading import get_class, get_model
+
+import logging
+logger = logging.getLogger(__name__)
 
 Product = get_model('catalogue', 'product')
 Category = get_model('catalogue', 'category')
@@ -16,6 +20,13 @@ ProductAlertForm = get_class('customer.forms', 'ProductAlertForm')
 get_product_search_handler_class = get_class(
     'catalogue.search_handlers', 'get_product_search_handler_class')
 
+
+class RecommendationsView(View):
+    logger.debug('RecommendationsView')
+
+    def get(self, request, **kwargs):
+        logger.debug('RecommendationsView.get')
+        return HttpResponse('result')
 
 class ProductDetailView(DetailView):
     context_object_name = 'product'

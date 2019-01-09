@@ -9,6 +9,7 @@
 {% load i18n %}
 {% load purchase_info_tags %}
 {% load recommendations %}
+{% load staticfiles %}
 
 {% block title %}
     {{ product.get_title }} | {{ block.super }}
@@ -19,6 +20,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
+
 <ul class="breadcrumb">
     <li>
         <a href="{{ homepage_url }}">{% trans "Home" %}</a>
@@ -48,7 +50,7 @@
 
 {% block content %}
 
-<article class="product_page"><!-- Start of product page -->
+<article class="product_page" ><!-- Start of product page -->
 
     <div class="row">
 
@@ -221,6 +223,13 @@
         {% endif %}
     {% endwith %}
 
+    {% comment %}
+    ajax based query
+    {% endcomment %}
+
+
+    <div id="ajax_test">
+    </div>
     {% recently_viewed_products current_product=product %}
 
 </article><!-- End of product page -->
@@ -228,4 +237,27 @@
 
 {% block extrascripts %}
     {{ block.super }}
+    <script type="text/javascript">    
+        jQuery(function($){
+            alert('Product Detail')
+            $.ajax({
+                type: "GET",
+                url: "../ajax/recommendations",
+                success: function(data) {
+                    console.log('Success: ' + data)
+                }
+            })
+        });
+        // (function($){
+        //     alert('Product Detail')
+        //     var url = "{{ easyrec_endpoint }}" + "recommendation"
+        //     $.ajax({
+        //         type: "GET",
+        //         url: url,
+        //     success: function(data) {
+        //         console.log('data: ' + data);
+        // }
+        // });
+        // })();
+    </script>
 {% endblock %}
