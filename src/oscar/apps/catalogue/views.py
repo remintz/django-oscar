@@ -6,12 +6,18 @@ from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, TemplateView
 from django.views import View
+from django.core import serializers
 
 from oscar.apps.catalogue.signals import product_viewed
 from oscar.core.loading import get_class, get_model
 
+from easyrec.utils import get_gateway
+
 import logging
 logger = logging.getLogger(__name__)
+
+import json
+import pprint
 
 Product = get_model('catalogue', 'product')
 Category = get_model('catalogue', 'category')
@@ -23,9 +29,13 @@ get_product_search_handler_class = get_class(
 
 class RecommendationsView(View):
     logger.debug('RecommendationsView')
+    easyrec = get_gateway()
 
     def get(self, request, **kwargs):
         logger.debug('RecommendationsView.get')
+        logger.debug('request.url: %s' % request.GET)
+#        easyrec.get_user_recommendations(rec_type, user_id, user_age, user_gender, user_school_level, product_upc, product_categories, max_results=None,
+#        requested_item_type=None, action_type=None, recommendation_type=None)
         return HttpResponse('result')
 
 class ProductDetailView(DetailView):
@@ -77,6 +87,15 @@ class ProductDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['alert_form'] = self.get_alert_form()
         ctx['has_active_alert'] = self.get_alert_status()
+        # store string with list of categories separated by ||
+        product_categories = self.object.get_categories().all()
+        category_names = ""
+        for cat in product_categories:
+            category_names += str(cat) + "||"
+        if (len(category_names) > 0):
+            category_names = category_names[:-2]
+        ctx['product_category_list'] = category_names
+
         return ctx
 
     def get_alert_status(self):

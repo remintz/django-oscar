@@ -238,11 +238,44 @@
 {% block extrascripts %}
     {{ block.super }}
     <script type="text/javascript">    
+        function calculate_age(birth_date) {
+            const date = new Date(birth_date)
+            var ageDifMs = Date.now() - date.getTime();
+            var ageDate = new Date(ageDifMs); // miliseconds from epoch
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        function categories(category_list) {
+
+            console.log('categories - category_list: ' + category_list)
+            var category_names = ""
+            for (category in category_list) {
+                category_names = category_names + category + "||"
+            }
+            return category_names
+        }
+
         jQuery(function($){
-            alert('Product Detail')
+//            alert('Product Detail')
+            const rec_type = "T"
+            const user_id = "{{ request.user.id }}"
+            const user_age = calculate_age("{{ request.user.demographics.birth_date }}")
+            const user_gender = "{{ request.user.demographics.gender }}"
+            const user_school_level = "{{ request.user.demographics.school_level }}"
+            const item_id = "{{ product.upc }}"
+            const item_categories = "{{ product_category_list|escapejs }}"
+            console.log('item_categories: ' + item_categories)
+            var query = "rectype=" + rec_type +
+                "&user_id="+ user_id + 
+                "&user_age=" + user_age + 
+                "&user_gender=" + user_gender + 
+                "&user_school_level=" + user_school_level + 
+                "&item_id=" + item_id + 
+                "&item_categories=" + item_categories;
             $.ajax({
                 type: "GET",
-                url: "../ajax/recommendations",
+                url: "../ajax/recommendations?"+query,
+
                 success: function(data) {
                     console.log('Success: ' + data)
                 }
