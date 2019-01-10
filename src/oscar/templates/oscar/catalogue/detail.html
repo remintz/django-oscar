@@ -246,7 +246,6 @@
         }
 
         function categories(category_list) {
-
             console.log('categories - category_list: ' + category_list)
             var category_names = ""
             for (category in category_list) {
@@ -255,9 +254,7 @@
             return category_names
         }
 
-        jQuery(function($){
-//            alert('Product Detail')
-            const rec_type = "T"
+        function get_recommendation(rec_type, success_function) {
             const user_id = "{{ request.user.id }}"
             const user_age = calculate_age("{{ request.user.demographics.birth_date }}")
             const user_gender = "{{ request.user.demographics.gender }}"
@@ -265,7 +262,7 @@
             const item_id = "{{ product.upc }}"
             const item_categories = "{{ product_category_list|escapejs }}"
             console.log('item_categories: ' + item_categories)
-            var query = "rectype=" + rec_type +
+            var query = "rec_type=" + rec_type +
                 "&user_id="+ user_id + 
                 "&user_age=" + user_age + 
                 "&user_gender=" + user_gender + 
@@ -275,22 +272,51 @@
             $.ajax({
                 type: "GET",
                 url: "../ajax/recommendations?"+query,
+                success: success_function
+            })
+        }
+        
+        function render_recommended_product(data) {
+            console.log('render_recommended_product data: ' + data)
+            let url = data.product_url
+            let image = data['product_image_url']
+            let title = data['product_title']
+            let score = data['score']
+            let html = `
+                <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
+                    <article class="product_pod">
+                        <div class="image_container">
+                            <a href="${url}"><img src="${image}" alt="${title}" class="thumbnail"></a>
+                        </div>
+                        <h3><a href="${url}" title="${title}">${title}</a></h3>
+                    </article> 
+                </li>
+            `
+            return html
+        }
 
-                success: function(data) {
-                    console.log('Success: ' + data)
-                }
+        function render_recommended_product_section(data) {
+            console.log('render_recommended_product_section data: ' + data)
+
+            let section_title = 'Recommended items (AJAX)'
+            html = `
+                <div class="sub-header">
+                    <h2>${section_title}</h2>
+                </div>
+                <ul class="row">
+            `
+            for (datum of data) {
+                html = html + render_recommended_product(datum)
+            }
+            html = html + '</ul>'
+            return html
+        }
+
+        jQuery(function($){
+            get_recommendation('T', function(data) {
+                console.log('Success: ' + data)
+                $('#ajax_test').append(render_recommended_product_section(JSON.parse(data)))
             })
         });
-        // (function($){
-        //     alert('Product Detail')
-        //     var url = "{{ easyrec_endpoint }}" + "recommendation"
-        //     $.ajax({
-        //         type: "GET",
-        //         url: url,
-        //     success: function(data) {
-        //         console.log('data: ' + data);
-        // }
-        // });
-        // })();
     </script>
 {% endblock %}

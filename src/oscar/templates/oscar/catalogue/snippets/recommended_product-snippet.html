@@ -1,0 +1,35 @@
+<div class="sub-header">
+    <h2>{% trans "Recommended items (AJAX)" %}</h2>
+</div>
+<ul class="row">
+    {% for product in recommended_products %}
+    <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
+        <article class="product_pod">
+            <div class="image_container">
+                <a href="/en-gb/catalogue/refactoring-to-patterns_175/"><img src="/media/cache/56/a1/56a134b1d3be0ce13558099b04a7d512.jpg"
+                        alt="Refactoring to patterns" class="thumbnail"></a>
+            </div>
+            <p class="star-rating ">
+                <i class="icon-star"></i>
+                <i class="icon-star"></i>
+                <i class="icon-star"></i>
+                <i class="icon-star"></i>
+                <i class="icon-star"></i>
+            </p>
+            <h3><a href="/en-gb/catalogue/refactoring-to-patterns_175/" title="Refactoring to patterns">Refactoring to patterns</a></h3>
+            <div class="product_price">
+                <p class="price_color">£28.99</p>
+                <p class="instock availability">
+                    <i class="icon-ok"></i>
+                    In stock
+                </p>
+                <form action="/en-gb/basket/add/175/" method="post">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="CMtgiNiePWMc8RwxT3jW6SuVeyAvIWDGur4Vxxuku9icQtPjDAURX2cuVBZsUVZi">
+                    <input type="hidden" name="quantity" value="1" id="id_quantity">
+                    <button type="submit" class="btn btn-primary btn-block" data-loading-text="Adding...">Add to basket</button>
+                </form>
+            </div>
+        </article>    </li>
+    {% endfor %}
+</ul>
+

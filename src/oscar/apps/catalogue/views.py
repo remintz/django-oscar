@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, TemplateView
 from django.views import View
 from django.core import serializers
+from django.template import Context
+from django.template import Template
 
 from oscar.apps.catalogue.signals import product_viewed
 from oscar.core.loading import get_class, get_model
@@ -33,10 +35,36 @@ class RecommendationsView(View):
 
     def get(self, request, **kwargs):
         logger.debug('RecommendationsView.get')
-        logger.debug('request.url: %s' % request.GET)
-#        easyrec.get_user_recommendations(rec_type, user_id, user_age, user_gender, user_school_level, product_upc, product_categories, max_results=None,
-#        requested_item_type=None, action_type=None, recommendation_type=None)
-        return HttpResponse('result')
+        params = request.GET.dict()
+        logger.debug('request params: %s' % params)
+        recommendations = self.easyrec.get_user_recommendations(
+            params.get('rec_type'), 
+            params.get('user_id'), 
+            params.get('user_age'), 
+            params.get('user_gender'), 
+            params.get('user_school_level'), 
+            params.get('item_id'), 
+            params.get('item_categories'), 
+            max_results=None,
+            requested_item_type=None,
+            action_type=None, 
+            recommendation_type=None)
+        logger.debug('recommendations returned: %s' % pprint.pformat(recommendations))
+        result = []
+        for recommendation in recommendations:
+            product = recommendation.get('product')
+#            context = Context({ 'image': product.primary_image().original })
+#            template = Template(' IMAGE: {{ image }} ')
+#            template = Template('{% load thumbnail %}{% thumbnail {{ image }} "x155" upscale=False as thumb %}')
+#            logger.debug('template: %s' % template.render(context))
+            result.append({
+                'product_title': product.title,
+                'product_url': product.get_absolute_url(),
+                'product_image_url': product.primary_image().original.url,
+                'score': recommendation.get('score')
+            })
+        logger.debug('recommendations result: %s' % pprint.pformat(result))
+        return HttpResponse(json.dumps(result))
 
 class ProductDetailView(DetailView):
     context_object_name = 'product'
@@ -95,7 +123,6 @@ class ProductDetailView(DetailView):
         if (len(category_names) > 0):
             category_names = category_names[:-2]
         ctx['product_category_list'] = category_names
-
         return ctx
 
     def get_alert_status(self):
