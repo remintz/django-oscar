@@ -191,6 +191,8 @@
         {% endblock product_review %}
     {% endiffeature %}
 
+    {% comment %}
+
     {% user_recommendations 'T' request.user product as recommendations %}
     {% with recommended_products=recommendations %}
         {% if recommended_products %}
@@ -223,13 +225,48 @@
         {% endif %}
     {% endwith %}
 
-    {% comment %}
     ajax based query
     {% endcomment %}
 
-
-    <div id="ajax_test">
+    <div class="sub-header">
+        <h2>{% trans "Recommended items (Classic)" %}</h2>
     </div>
+    <ul class="row">
+        <div id="recommendation_quantum_classic">
+            <div id="recommendation_quantum_classic_wait">
+                Please... wait...
+            </div>
+        </div>
+    </ul>
+    <div id="recommendation_quantum_classic_timer">
+    </div>
+
+    <div class="sub-header">
+        <h2>{% trans "Recommended items (Quantum Simulation)" %}</h2>
+    </div>
+    <ul class="row">
+        <div id="recommendation_quantum_simulated">
+            <div id="recommendation_quantum_simulated_wait">
+                Please... wait...
+            </div>
+        </div>
+    </ul>
+    <div id="recommendation_quantum_simulated_timer">
+        </div>
+    
+    <div class="sub-header">
+        <h2>{% trans "Recommended items (Quantum Real)" %}</h2>
+    </div>
+    <ul class="row">
+        <div id="recommendation_quantum_real">
+            <div id="recommendation_quantum_real_wait">
+                Please... wait...
+            </div>
+        </div>
+    </ul>
+    <div id="recommendation_quantum_real_timer">
+        </div>
+        
     {% recently_viewed_products current_product=product %}
 
 </article><!-- End of product page -->
@@ -261,7 +298,6 @@
             const user_school_level = "{{ request.user.demographics.school_level }}"
             const item_id = "{{ product.upc }}"
             const item_categories = "{{ product_category_list|escapejs }}"
-            console.log('item_categories: ' + item_categories)
             var query = "rec_type=" + rec_type +
                 "&user_id="+ user_id + 
                 "&user_age=" + user_age + 
@@ -284,8 +320,9 @@
             let score = data['score']
             let html = `
                 <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-                    <article class="product_pod">
+                    <article class="product_pod" style="height: auto">
                         <div class="image_container">
+                            <h3>(${score})</h3>
                             <a href="${url}"><img src="${image}" alt="${title}" class="thumbnail"></a>
                         </div>
                         <h3><a href="${url}" title="${title}">${title}</a></h3>
@@ -297,25 +334,38 @@
 
         function render_recommended_product_section(data) {
             console.log('render_recommended_product_section data: ' + data)
-
-            let section_title = 'Recommended items (AJAX)'
-            html = `
-                <div class="sub-header">
-                    <h2>${section_title}</h2>
-                </div>
-                <ul class="row">
-            `
+            html = ''
             for (datum of data) {
                 html = html + render_recommended_product(datum)
             }
-            html = html + '</ul>'
             return html
         }
 
         jQuery(function($){
+            var timer_classic = (new Date()).getTime();
             get_recommendation('T', function(data) {
                 console.log('Success: ' + data)
-                $('#ajax_test').append(render_recommended_product_section(JSON.parse(data)))
+                var response_time = ((new Date()).getTime() - timer_classic)
+                console.log('response_time: ' + response_time)
+                $('#recommendation_quantum_classic_wait').hide();
+                $('#recommendation_quantum_classic').append(render_recommended_product_section(JSON.parse(data)))
+                $('#recommendation_quantum_classic_timer').append(`<p>Response time: ${response_time/1000} s</p>`)
+            })
+            var timer_simulated = (new Date()).getTime();
+            get_recommendation('T', function(data) {
+                console.log('Success: ' + data)
+                var response_time = ((new Date()).getTime() - timer_simulated)
+                $('#recommendation_quantum_simulated_wait').hide();
+                $('#recommendation_quantum_simulated').append(render_recommended_product_section(JSON.parse(data)))
+                $('#recommendation_quantum_simulated_timer').append(`<p>Response time: ${response_time/1000} s</p>`)
+            })
+            var timer_real = (new Date()).getTime();
+            get_recommendation('T', function(data) {
+                console.log('Success: ' + data)
+                var response_time = ((new Date()).getTime() - timer_real)
+                $('#recommendation_quantum_real_wait').hide();
+                $('#recommendation_quantum_real').append(render_recommended_product_section(JSON.parse(data)))
+                $('#recommendation_quantum_real_timer').append(`<p>Response time: ${response_time/1000} s<p>`)
             })
         });
     </script>
