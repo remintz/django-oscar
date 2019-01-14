@@ -1,13 +1,25 @@
 from django.contrib import messages
 from django.core.paginator import InvalidPage
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponsePermanentRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, TemplateView
+from django.views import View
+from django.core import serializers
+from django.template import Context
+from django.template import Template
 
 from oscar.apps.catalogue.signals import product_viewed
 from oscar.core.loading import get_class, get_model
+
+from easyrec.utils import get_gateway
+
+import logging
+logger = logging.getLogger(__name__)
+
+import json
+import pprint
 
 Product = get_model('catalogue', 'product')
 Category = get_model('catalogue', 'category')
@@ -16,6 +28,43 @@ ProductAlertForm = get_class('customer.forms', 'ProductAlertForm')
 get_product_search_handler_class = get_class(
     'catalogue.search_handlers', 'get_product_search_handler_class')
 
+
+class RecommendationsView(View):
+    logger.debug('RecommendationsView')
+    easyrec = get_gateway()
+
+    def get(self, request, **kwargs):
+        logger.debug('RecommendationsView.get')
+        params = request.GET.dict()
+        logger.debug('request params: %s' % params)
+        recommendations = self.easyrec.get_user_recommendations(
+            params.get('rec_type'), 
+            params.get('user_id'), 
+            params.get('user_age'), 
+            params.get('user_gender'), 
+            params.get('user_school_level'), 
+            params.get('item_id'), 
+            params.get('item_categories'), 
+            max_results=None,
+            requested_item_type=None,
+            action_type=None, 
+            recommendation_type=None)
+        logger.debug('recommendations returned: %s' % pprint.pformat(recommendations))
+        result = []
+        for recommendation in recommendations:
+            product = recommendation.get('product')
+#            context = Context({ 'image': product.primary_image().original })
+#            template = Template(' IMAGE: {{ image }} ')
+#            template = Template('{% load thumbnail %}{% thumbnail {{ image }} "x155" upscale=False as thumb %}')
+#            logger.debug('template: %s' % template.render(context))
+            result.append({
+                'product_title': product.title,
+                'product_url': product.get_absolute_url(),
+                'product_image_url': product.primary_image().original.url,
+                'score': recommendation.get('score')
+            })
+        logger.debug('recommendations result: %s' % pprint.pformat(result))
+        return HttpResponse(json.dumps(result))
 
 class ProductDetailView(DetailView):
     context_object_name = 'product'
@@ -66,6 +115,14 @@ class ProductDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['alert_form'] = self.get_alert_form()
         ctx['has_active_alert'] = self.get_alert_status()
+        # store string with list of categories separated by ||
+        product_categories = self.object.get_categories().all()
+        category_names = ""
+        for cat in product_categories:
+            category_names += str(cat) + "||"
+        if (len(category_names) > 0):
+            category_names = category_names[:-2]
+        ctx['product_category_list'] = category_names
         return ctx
 
     def get_alert_status(self):
