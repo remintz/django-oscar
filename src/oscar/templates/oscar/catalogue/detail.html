@@ -343,7 +343,7 @@
 
         jQuery(function($){
             var timer_classic = (new Date()).getTime();
-            get_recommendation('T', function(data) {
+            get_recommendation('C', function(data) {
                 console.log('Success: ' + data)
                 var response_time = ((new Date()).getTime() - timer_classic)
                 console.log('response_time: ' + response_time)
@@ -352,7 +352,7 @@
                 $('#recommendation_quantum_classic_timer').append(`<p>Response time: ${response_time/1000} s</p>`)
             })
             var timer_simulated = (new Date()).getTime();
-            get_recommendation('T', function(data) {
+            get_recommendation('S', function(data) {
                 console.log('Success: ' + data)
                 var response_time = ((new Date()).getTime() - timer_simulated)
                 $('#recommendation_quantum_simulated_wait').hide();
@@ -360,7 +360,7 @@
                 $('#recommendation_quantum_simulated_timer').append(`<p>Response time: ${response_time/1000} s</p>`)
             })
             var timer_real = (new Date()).getTime();
-            get_recommendation('T', function(data) {
+            get_recommendation('Q', function(data) {
                 console.log('Success: ' + data)
                 var response_time = ((new Date()).getTime() - timer_real)
                 $('#recommendation_quantum_real_wait').hide();
