@@ -291,7 +291,7 @@
             return category_names
         }
 
-        function get_recommendation(rec_type, success_function) {
+        function trigger_get_recommendation(rec_type, success_function) {
             const user_id = "{{ request.user.id }}"
             const user_age = calculate_age("{{ request.user.demographics.birth_date }}")
             const user_gender = "{{ request.user.demographics.gender }}"
@@ -315,6 +315,16 @@
             })
         }
         
+        function poll_recommendation_job(job_id, timer_start, rec_type, success_function) {
+            var query = "job_id=" + job_id
+            $.ajax({
+                type: "GET",
+                context: { timer_start: timer_start, rec_type: rec_type },
+                url: "../ajax/jobs?"+query,
+                success: success_function
+            })
+
+        }
         function render_recommended_product(data) {
             console.log('render_recommended_product data: ' + data)
             let url = data.product_url
@@ -346,29 +356,33 @@
 
         function handle_success(data) {
             console.log('Success: ' + data)
-            var rec_type = this.rec_type
-            var response_time = ((new Date()).getTime() - this.timer_start)
-            var base_tag = ''
-            var wait_tag = ''
-            var timer_tag = ''
-            if (rec_type === 'C') {
-                base_tag = '#recommendation_quantum_classic'
-            } else if (rec_type === 'S') {
-                base_tag = '#recommendation_quantum_simulated'
+            if (data.job_id) {
+                setTimeout(poll_recommendation_job(job_id, this.timer_start, this.rec_type, handle_success), 3000)
             } else {
-                base_tag = '#recommendation_quantum_real'
+                var rec_type = this.rec_type
+                var response_time = ((new Date()).getTime() - this.timer_start)
+                var base_tag = ''
+                var wait_tag = ''
+                var timer_tag = ''
+                if (rec_type === 'C') {
+                    base_tag = '#recommendation_quantum_classic'
+                } else if (rec_type === 'S') {
+                    base_tag = '#recommendation_quantum_simulated'
+                } else {
+                    base_tag = '#recommendation_quantum_real'
+                }
+                wait_tag = base_tag + '_wait'
+                timer_tag = base_tag + '_timer'
+                $(wait_tag).hide();
+                $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
+                $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
             }
-            wait_tag = base_tag + '_wait'
-            timer_tag = base_tag + '_timer'
-            $(wait_tag).hide();
-            $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
-            $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
         }
 
         jQuery(function($){
-            get_recommendation('C', handle_success) 
-            get_recommendation('S', handle_success)
-            get_recommendation('Q', handle_success)
+            trigger_get_recommendation('C', handle_success) 
+            trigger_get_recommendation('S', handle_success)
+            trigger_get_recommendation('Q', handle_success)
         });
     </script>
 {% endblock %}
