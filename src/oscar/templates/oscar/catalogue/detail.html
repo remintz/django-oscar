@@ -191,43 +191,6 @@
         {% endblock product_review %}
     {% endiffeature %}
 
-    {% comment %}
-
-    {% user_recommendations 'T' request.user product as recommendations %}
-    {% with recommended_products=recommendations %}
-        {% if recommended_products %}
-            <div class="sub-header">
-                <h2>{% trans "Recommended items (Traditional)" %}</h2>
-            </div>
-            <ul class="row">
-                {% for product in recommended_products %}
-                <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-                    {% render_product product.product %}
-                </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    {% user_recommendations 'Q' request.user product as recommendations %}
-    {% with recommended_products=recommendations %}
-        {% if recommended_products %}
-            <div class="sub-header">
-                <h2>{% trans "Recommended items (Quantum)" %}</h2>
-            </div>
-            <ul class="row">
-                {% for product in recommended_products %}
-                <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-                    {% render_product product.product %}
-                </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    ajax based query
-    {% endcomment %}
-
     <div class="sub-header">
         <h2>{% trans "Recommended items (Classic)" %}</h2>
     </div>
@@ -319,7 +282,7 @@
             var query = "job_id=" + job_id
             $.ajax({
                 type: "GET",
-                context: { timer_start: timer_start, rec_type: rec_type },
+                context: { timer_start: timer_start, rec_type: rec_type, job_id: job_id },
                 url: "../ajax/jobs?"+query,
                 success: success_function
             })
@@ -335,7 +298,6 @@
                 <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
                     <article class="product_pod" style="height: auto">
                         <div class="image_container">
-                            <h3>(${score})</h3>
                             <a href="${url}"><img src="${image}" alt="${title}" class="thumbnail"></a>
                         </div>
                         <h3><a href="${url}" title="${title}">${title}</a></h3>
@@ -355,10 +317,13 @@
         }
 
         function handle_success(data) {
+            //--- this success function handles both provisional and final responses
             console.log('Success: ' + data)
-            if (data.job_id) {
-                setTimeout(poll_recommendation_job(job_id, this.timer_start, this.rec_type, handle_success), 3000)
-            } else {
+            // if (!data.job_id) {
+            //     //-- response was provisional... poll response again in 3 seconds
+            //     setTimeout(poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
+            // } else {
+                //--- this is the final response... render
                 var rec_type = this.rec_type
                 var response_time = ((new Date()).getTime() - this.timer_start)
                 var base_tag = ''
@@ -376,7 +341,7 @@
                 $(wait_tag).hide();
                 $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
                 $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
-            }
+            // }
         }
 
         jQuery(function($){

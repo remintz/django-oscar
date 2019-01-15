@@ -9,6 +9,7 @@ from django.views import View
 from django.core import serializers
 from django.template import Context
 from django.template import Template
+from django.conf import settings
 
 from oscar.apps.catalogue.signals import product_viewed
 from oscar.core.loading import get_class, get_model
@@ -51,8 +52,15 @@ class RecommendationsView(View):
             recommendation_type=None)
         logger.debug('recommendations returned: %s' % pprint.pformat(recommendations))
         result = []
+        num_recommendations = 0
         for recommendation in recommendations:
             product = recommendation.get('product')
+#            primary_image_url = product.get_missing_image().symlink_missing_image(settings.OSCAR_IMAGE_FOLDER)
+            primage_image_url = '/static/oscar/image_not_found.jpg'
+            try:
+                primary_image_url = product.primary_image().original.url
+            except:
+                pass
 #            context = Context({ 'image': product.primary_image().original })
 #            template = Template(' IMAGE: {{ image }} ')
 #            template = Template('{% load thumbnail %}{% thumbnail {{ image }} "x155" upscale=False as thumb %}')
@@ -60,9 +68,12 @@ class RecommendationsView(View):
             result.append({
                 'product_title': product.title,
                 'product_url': product.get_absolute_url(),
-                'product_image_url': product.primary_image().original.url,
+                'product_image_url': primary_image_url,
                 'score': recommendation.get('score')
             })
+            num_recommendations = num_recommendations + 1
+            if (num_recommendations == 3):
+                break
         logger.debug('recommendations result: %s' % pprint.pformat(result))
         return HttpResponse(json.dumps(result))
 
