@@ -52,11 +52,10 @@ class RecommendationsView(View):
             recommendation_type=None)
         logger.debug('recommendations returned: %s' % pprint.pformat(recommendations))
         result = []
-        num_recommendations = 0
         for recommendation in recommendations:
             product = recommendation.get('product')
 #            primary_image_url = product.get_missing_image().symlink_missing_image(settings.OSCAR_IMAGE_FOLDER)
-            primage_image_url = '/static/oscar/image_not_found.jpg'
+            primary_image_url = '/media/image_not_found.jpg'
             try:
                 primary_image_url = product.primary_image().original.url
             except:
@@ -71,9 +70,6 @@ class RecommendationsView(View):
                 'product_image_url': primary_image_url,
                 'score': recommendation.get('score')
             })
-            num_recommendations = num_recommendations + 1
-            if (num_recommendations == 3):
-                break
         logger.debug('recommendations result: %s' % pprint.pformat(result))
         return HttpResponse(json.dumps(result))
 
