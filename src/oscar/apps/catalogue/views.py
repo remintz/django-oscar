@@ -31,14 +31,16 @@ get_product_search_handler_class = get_class(
 
 
 class RecommendationsView(View):
-    logger.debug('RecommendationsView')
+    '''
+        This is not actually a presentation layer view, but just server proxy to a client AJAX call to avoid the CORS problem
+    '''
     easyrec = get_gateway()
 
     def get(self, request, **kwargs):
         logger.debug('RecommendationsView.get')
         params = request.GET.dict()
         logger.debug('request params: %s' % params)
-        recommendations = self.easyrec.get_user_recommendations(
+        response = self.easyrec.get_user_recommendations(
             params.get('rec_type'), 
             params.get('user_id'), 
             params.get('user_age'), 
@@ -50,20 +52,50 @@ class RecommendationsView(View):
             requested_item_type=None,
             action_type=None, 
             recommendation_type=None)
-        logger.debug('recommendations returned: %s' % pprint.pformat(recommendations))
+        logger.debug('RecommendationsView - response returned: %s' % pprint.pformat(response))
+        new_response = {}
+        new_response["job_id"] = response.get('job_id')
+        recommendations = response.get('recommendations')
+        if recommendations:
+            result = []
+            for recommendation in recommendations:
+                product = recommendation.get('product')
+                primary_image_url = '/media/image_not_found.jpg'
+                try:
+                    primary_image_url = product.primary_image().original.url
+                except:
+                    pass
+                result.append({
+                    'product_title': product.title,
+                    'product_url': product.get_absolute_url(),
+                    'product_image_url': primary_image_url,
+                    'score': recommendation.get('score')
+                })
+            logger.debug('recommendations result: %s' % pprint.pformat(result))
+            new_response["recommendations"] = result
+        return HttpResponse(json.dumps(new_response))
+
+class JobsView(View):
+    '''
+        This is not actually a presentation layer view, but just server proxy to a client AJAX call to avoid the CORS problem
+    '''
+    easyrec = get_gateway()
+    def get(self, request, **kwargs):
+        logger.debug('JobsView.get')
+        params = request.GET.dict()
+        logger.debug('request params: %s' % params)
+        recommendations = self.easyrec.get_job_status(
+            params.get('job_id')
+        )
+        logger.debug('JobsView - recommendations returned: %s' % pprint.pformat(recommendations))
         result = []
         for recommendation in recommendations:
             product = recommendation.get('product')
-#            primary_image_url = product.get_missing_image().symlink_missing_image(settings.OSCAR_IMAGE_FOLDER)
             primary_image_url = '/media/image_not_found.jpg'
             try:
                 primary_image_url = product.primary_image().original.url
             except:
                 pass
-#            context = Context({ 'image': product.primary_image().original })
-#            template = Template(' IMAGE: {{ image }} ')
-#            template = Template('{% load thumbnail %}{% thumbnail {{ image }} "x155" upscale=False as thumb %}')
-#            logger.debug('template: %s' % template.render(context))
             result.append({
                 'product_title': product.title,
                 'product_url': product.get_absolute_url(),
