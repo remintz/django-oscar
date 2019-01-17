@@ -354,8 +354,8 @@ from oscar.defaults import *
 # Meta
 # ====
 
-OSCAR_SHOP_TAGLINE = 'Sandbox'
-
+OSCAR_SHOP_TAGLINE = 'powered by Django Oscar'
+OSCAR_SHOP_NAME = 'Accenture Quantum Book Shop'
 OSCAR_RECENTLY_VIEWED_PRODUCTS = 20
 OSCAR_ALLOW_ANON_CHECKOUT = True
 
