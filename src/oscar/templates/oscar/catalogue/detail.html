@@ -191,45 +191,44 @@
         {% endblock product_review %}
     {% endiffeature %}
 
-    <div class="sub-header">
-        <h2>{% trans "Recommended items (Classic Recommendation)" %}</h2>
-    </div>
-    <ul class="row">
-        <div id="recommendation_quantum_classic">
-            <div id="recommendation_quantum_classic_wait">
-                Please... wait...
-            </div>
+    {% if user.id %}
+        <div class="sub-header">
+            <h2>{% trans "Recommended items (Classic Recommendation)" %}</h2>
         </div>
-    </ul>
-    <div id="recommendation_quantum_classic_timer">
-    </div>
+        <ul class="row">
+            <div id="recommendation_quantum_classic">
+                <div id="recommendation_quantum_classic_wait">
+                    Please... wait...
+                </div>
+            </div>
+        </ul>
+        <div id="recommendation_quantum_classic_timer">
+        </div>
 
-    <div class="sub-header">
-        <h2>{% trans "Recommended items (Quantum Simulator)" %}</h2>
-    </div>
-    <ul class="row">
-        <div id="recommendation_quantum_simulated">
-            <div id="recommendation_quantum_simulated_wait">
-                Please... wait...
+        <div class="sub-header">
+            <h2>{% trans "Recommended items (Quantum Simulator)" %}</h2>
+        </div>
+        <ul class="row">
+            <div id="recommendation_quantum_simulated">
+                <div id="recommendation_quantum_simulated_wait">
+                    Please... wait...
+                </div>
             </div>
-        </div>
-    </ul>
-    <div id="recommendation_quantum_simulated_timer">
-        </div>
-    
-    <div class="sub-header">
-        <h2>{% trans "Recommended items (Quantum Computer)" %}</h2>
-    </div>
-    <ul class="row">
-        <div id="recommendation_quantum_real">
-            <div id="recommendation_quantum_real_wait">
-                Please... wait...
-            </div>
-        </div>
-    </ul>
-    <div id="recommendation_quantum_real_timer">
-        </div>
+        </ul>
+        <div id="recommendation_quantum_simulated_timer"></div>
         
+        <div class="sub-header">
+            <h2>{% trans "Recommended items (Quantum Computer)" %}</h2>
+        </div>
+        <ul class="row">
+            <div id="recommendation_quantum_real">
+                <div id="recommendation_quantum_real_wait">
+                    Please... wait...
+                </div>
+            </div>
+        </ul>
+        <div id="recommendation_quantum_real_timer"></div>
+    {% endif %}
     {% recently_viewed_products current_product=product %}
 
 </article><!-- End of product page -->
@@ -237,117 +236,119 @@
 
 {% block extrascripts %}
     {{ block.super }}
-    <script type="text/javascript">    
-        function calculate_age(birth_date) {
-            const date = new Date(birth_date)
-            var ageDifMs = Date.now() - date.getTime();
-            var ageDate = new Date(ageDifMs); // miliseconds from epoch
-            return Math.abs(ageDate.getUTCFullYear() - 1970);
-        }
-
-        function categories(category_list) {
-            console.log('categories - category_list: ' + category_list)
-            var category_names = ""
-            for (category in category_list) {
-                category_names = category_names + category + "||"
+    {% if user.id %}
+        <script type="text/javascript">    
+            function calculate_age(birth_date) {
+                const date = new Date(birth_date)
+                var ageDifMs = Date.now() - date.getTime();
+                var ageDate = new Date(ageDifMs); // miliseconds from epoch
+                return Math.abs(ageDate.getUTCFullYear() - 1970);
             }
-            return category_names
-        }
 
-        function trigger_get_recommendation(rec_type, success_function) {
-            const user_id = "{{ request.user.id }}"
-            const user_age = calculate_age("{{ request.user.demographics.birth_date }}")
-            const user_gender = "{{ request.user.demographics.gender }}"
-            const user_school_level = "{{ request.user.demographics.school_level }}"
-            const item_id = "{{ product.upc }}"
-            const item_categories = "{{ product_category_list|escapejs }}"
-            var query = "rec_type=" + rec_type +
-                "&user_id="+ user_id + 
-                "&user_age=" + user_age + 
-                "&user_gender=" + user_gender + 
-                "&user_school_level=" + user_school_level + 
-                "&item_id=" + item_id + 
-                "&item_categories=" + item_categories;
-            var timer_start = (new Date()).getTime();
-
-            $.ajax({
-                type: "GET",
-                context: { timer_start: timer_start, rec_type: rec_type },
-                url: "../ajax/recommendations?"+query,
-                success: success_function
-            })
-        }
-        
-        function poll_recommendation_job(job_id, timer_start, rec_type, success_function) {
-            var query = "job_id=" + job_id
-            $.ajax({
-                type: "GET",
-                context: { timer_start: timer_start, rec_type: rec_type, job_id: job_id },
-                url: "../ajax/jobs?"+query,
-                success: success_function
-            })
-
-        }
-        function render_recommended_product(data) {
-            console.log('render_recommended_product data: ' + data)
-            let url = data.product_url
-            let image = data['product_image_url']
-            let title = data['product_title']
-            let score = data['score']
-            let html = `
-                <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-                    <article class="product_pod" style="height: auto">
-                        <div class="image_container">
-                            <a href="${url}"><img src="${image}" alt="${title}" class="thumbnail"></a>
-                        </div>
-                        <h3><a href="${url}" title="${title}">${title}</a></h3>
-                    </article> 
-                </li>
-            `
-            return html
-        }
-
-        function render_recommended_product_section(data) {
-            console.log('render_recommended_product_section data: ' + data)
-            html = ''
-            for (datum of data) {
-                html = html + render_recommended_product(datum)
-            }
-            return html
-        }
-
-        function handle_success(data) {
-            //--- this success function handles both provisional and final responses
-            console.log('Success: ' + data)
-            // if (!data.job_id) {
-            //     //-- response was provisional... poll response again in 3 seconds
-            //     setTimeout(poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
-            // } else {
-                //--- this is the final response... render
-                var rec_type = this.rec_type
-                var response_time = ((new Date()).getTime() - this.timer_start)
-                var base_tag = ''
-                var wait_tag = ''
-                var timer_tag = ''
-                if (rec_type === 'C') {
-                    base_tag = '#recommendation_quantum_classic'
-                } else if (rec_type === 'S') {
-                    base_tag = '#recommendation_quantum_simulated'
-                } else {
-                    base_tag = '#recommendation_quantum_real'
+            function categories(category_list) {
+                console.log('categories - category_list: ' + category_list)
+                var category_names = ""
+                for (category in category_list) {
+                    category_names = category_names + category + "||"
                 }
-                wait_tag = base_tag + '_wait'
-                timer_tag = base_tag + '_timer'
-                $(wait_tag).hide();
-                $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
-                $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
-            // }
-        }
+                return category_names
+            }
 
-        jQuery(function($){
-            trigger_get_recommendation('C', handle_success) 
-            trigger_get_recommendation('S', handle_success)
-            trigger_get_recommendation('Q', handle_success)
-        });
-    </script>
+            function trigger_get_recommendation(rec_type, success_function) {
+                const user_id = "{{ request.user.id }}"
+                const user_age = calculate_age("{{ request.user.demographics.birth_date }}")
+                const user_gender = "{{ request.user.demographics.gender }}"
+                const user_school_level = "{{ request.user.demographics.school_level }}"
+                const item_id = "{{ product.upc }}"
+                const item_categories = "{{ product_category_list|escapejs }}"
+                var query = "rec_type=" + rec_type +
+                    "&user_id="+ user_id + 
+                    "&user_age=" + user_age + 
+                    "&user_gender=" + user_gender + 
+                    "&user_school_level=" + user_school_level + 
+                    "&item_id=" + item_id + 
+                    "&item_categories=" + item_categories;
+                var timer_start = (new Date()).getTime();
+
+                $.ajax({
+                    type: "GET",
+                    context: { timer_start: timer_start, rec_type: rec_type },
+                    url: "../ajax/recommendations?"+query,
+                    success: success_function
+                })
+            }
+            
+            function poll_recommendation_job(job_id, timer_start, rec_type, success_function) {
+                var query = "job_id=" + job_id
+                $.ajax({
+                    type: "GET",
+                    context: { timer_start: timer_start, rec_type: rec_type, job_id: job_id },
+                    url: "../ajax/jobs?"+query,
+                    success: success_function
+                })
+
+            }
+            function render_recommended_product(data) {
+                console.log('render_recommended_product data: ' + data)
+                let url = data.product_url
+                let image = data['product_image_url']
+                let title = data['product_title']
+                let score = data['score']
+                let html = `
+                    <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
+                        <article class="product_pod" style="height: auto">
+                            <div class="image_container">
+                                <a href="${url}"><img src="${image}" alt="${title}" class="thumbnail"></a>
+                            </div>
+                            <h3><a href="${url}" title="${title}">${title}</a></h3>
+                        </article> 
+                    </li>
+                `
+                return html
+            }
+
+            function render_recommended_product_section(data) {
+                console.log('render_recommended_product_section data: ' + data)
+                html = ''
+                for (datum of data) {
+                    html = html + render_recommended_product(datum)
+                }
+                return html
+            }
+
+            function handle_success(data) {
+                //--- this success function handles both provisional and final responses
+                console.log('Success: ' + data)
+                // if (!data.job_id) {
+                //     //-- response was provisional... poll response again in 3 seconds
+                //     setTimeout(poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
+                // } else {
+                    //--- this is the final response... render
+                    var rec_type = this.rec_type
+                    var response_time = ((new Date()).getTime() - this.timer_start)
+                    var base_tag = ''
+                    var wait_tag = ''
+                    var timer_tag = ''
+                    if (rec_type === 'C') {
+                        base_tag = '#recommendation_quantum_classic'
+                    } else if (rec_type === 'S') {
+                        base_tag = '#recommendation_quantum_simulated'
+                    } else {
+                        base_tag = '#recommendation_quantum_real'
+                    }
+                    wait_tag = base_tag + '_wait'
+                    timer_tag = base_tag + '_timer'
+                    $(wait_tag).hide();
+                    $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
+                    $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
+                // }
+            }
+
+            jQuery(function($){
+                    trigger_get_recommendation('C', handle_success) 
+                    trigger_get_recommendation('S', handle_success)
+                    trigger_get_recommendation('Q', handle_success)
+            });
+        </script>
+    {% endif %}
 {% endblock %}
