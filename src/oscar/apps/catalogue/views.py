@@ -65,10 +65,17 @@ class RecommendationsView(View):
                     primary_image_url = product.primary_image().original.url
                 except:
                     pass
+                product_categories = product.get_categories().all()
+                cat_list = ""
+                for cat in product_categories:
+                    c = str(cat)
+                    cat_list = cat_list + c[c.rfind('>')+2:] + ', '
+                cat_list = cat_list[:-2]
                 result.append({
                     'product_title': product.title,
                     'product_url': product.get_absolute_url(),
                     'product_image_url': primary_image_url,
+                    'product_category': cat_list,
                     'score': recommendation.get('score')
                 })
             logger.debug('recommendations result: %s' % pprint.pformat(result))
