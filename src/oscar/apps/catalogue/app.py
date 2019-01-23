@@ -10,6 +10,7 @@ class BaseCatalogueApplication(Application):
     catalogue_view = get_class('catalogue.views', 'CatalogueView')
     category_view = get_class('catalogue.views', 'ProductCategoryView')
     ajax_recommendations_view=get_class('catalogue.views', 'RecommendationsView')
+    ajax_jobs_view=get_class('catalogue.views', 'JobsView')
     range_view = get_class('offer.views', 'RangeDetailView')
 
     def get_urls(self):
@@ -22,7 +23,8 @@ class BaseCatalogueApplication(Application):
                 self.category_view.as_view(), name='category'),
             url(r'^ranges/(?P<slug>[\w-]+)/$',
                 self.range_view.as_view(), name='range'),
-            url(r'^ajax/recommendations', self.ajax_recommendations_view.as_view(), name='ajax_recommendation')
+            url(r'^ajax/recommendations', self.ajax_recommendations_view.as_view(), name='ajax_recommendation'),
+            url(r'^ajax/jobs', self.ajax_jobs_view.as_view(), name='ajax_job'),
         ]
         return self.post_process_urls(urlpatterns)
 

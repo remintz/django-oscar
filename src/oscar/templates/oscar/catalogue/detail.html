@@ -279,6 +279,7 @@
             }
             
             function poll_recommendation_job(job_id, timer_start, rec_type, success_function) {
+                console.log('poll_recommendation_job: job: ' + job_id)
                 var query = "job_id=" + job_id
                 $.ajax({
                     type: "GET",
@@ -319,10 +320,13 @@
             function handle_success(data) {
                 //--- this success function handles both provisional and final responses
                 console.log('Success: ' + data)
-                // if (!data.job_id) {
-                //     //-- response was provisional... poll response again in 3 seconds
-                //     setTimeout(poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
-                // } else {
+                data = JSON.parse(data)
+                if (!data.recommendations) {
+                    console.log('No Recommendations... poll job');
+                    //-- response was provisional... poll response again in 3 seconds
+                    setTimeout(() => poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
+                } else {
+                    console.log('Recommendations available... render');
                     //--- this is the final response... render
                     var rec_type = this.rec_type
                     var response_time = ((new Date()).getTime() - this.timer_start)
@@ -339,9 +343,9 @@
                     wait_tag = base_tag + '_wait'
                     timer_tag = base_tag + '_timer'
                     $(wait_tag).hide();
-                    $(base_tag).append(render_recommended_product_section(JSON.parse(data)))
+                    $(base_tag).append(render_recommended_product_section(data.recommendations))
                     $(timer_tag).append(`<p>Response time: ${response_time/1000} s</p>`)
-                // }
+                }
             }
 
             jQuery(function($){
