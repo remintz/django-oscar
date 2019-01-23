@@ -279,6 +279,7 @@
             }
             
             function poll_recommendation_job(job_id, timer_start, rec_type, success_function) {
+                console.log('poll_recommendation_job: job: ' + job_id)
                 var query = "job_id=" + job_id
                 $.ajax({
                     type: "GET",
@@ -321,9 +322,11 @@
                 console.log('Success: ' + data)
                 data = JSON.parse(data)
                 if (!data.recommendations) {
+                    console.log('No Recommendations... poll job');
                     //-- response was provisional... poll response again in 3 seconds
-                    setTimeout(poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
+                    setTimeout(() => poll_recommendation_job(data.job_id, this.timer_start, this.rec_type, handle_success), 3000)
                 } else {
+                    console.log('Recommendations available... render');
                     //--- this is the final response... render
                     var rec_type = this.rec_type
                     var response_time = ((new Date()).getTime() - this.timer_start)
