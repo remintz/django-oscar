@@ -359,6 +359,8 @@ OSCAR_SHOP_NAME = 'Accenture Quantum Book Shop'
 OSCAR_RECENTLY_VIEWED_PRODUCTS = 20
 OSCAR_ALLOW_ANON_CHECKOUT = True
 
+# Hidden Oscar features, e.g. wishlists or reviews
+OSCAR_HIDDEN_FEATURES = ['reviews']
 
 # Order processing
 # ================
