@@ -100,6 +100,9 @@ class JobsView(View):
         if (status == 'RUNNING'):
             result['status'] = 'RUNNING'
             result['job_id'] = job_status.get('id')
+        elif (status == 'FAILED'):
+            result['status'] = 'FAILED'
+            result['job_id'] = job_status.get('id')
         else:
             result['status'] = 'DONE'
             recommendation_list = []
